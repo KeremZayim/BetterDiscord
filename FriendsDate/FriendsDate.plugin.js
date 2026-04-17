@@ -2,7 +2,7 @@
  * @name FriendsDate
  * @author UnDead To Infinity
  * @authorId undeadtoinfinity
- * @version 1.0.99
+ * @version 1.1.0
  * @description Kullanıcı panellerinde ne zamandan beri arkadaş olduğunuzu ve toplam arkadaşlık süresini tek bir başlık altında gösterir.
  * @source https://github.com/KeremZayim/BetterDiscord/tree/main/FriendsDate
  * @updateUrl https://raw.githubusercontent.com/KeremZayim/BetterDiscord/main/FriendsDate/FriendsDate.plugin.js
