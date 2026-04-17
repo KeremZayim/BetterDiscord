@@ -2,9 +2,10 @@
  * @name FriendsDate
  * @author UnDead To Infinity
  * @authorId undeadtoinfinity
- * @version 1.1.0
- * @description Kullanıcı panellerinde ne zamandan beri arkadaş olduğunuzu ve toplam arkadaşlık süresini tek bir başlık altında gösterir.
+ * @version 1.0.1
+ * @description Kullanıcı panellerinde ne zamandan beri arkadaş olduğunuzu ve toplam arkadaşlık süresini tek bir başlık altında gösterir. Manuel güncelleme desteği içerir.
  * @source https://github.com/KeremZayim/BetterDiscord/tree/main/FriendsDate
+ * @invite G2RQWBda8t
  * @updateUrl https://raw.githubusercontent.com/KeremZayim/BetterDiscord/main/FriendsDate/FriendsDate.plugin.js
  */
 
@@ -164,10 +165,36 @@ module.exports = (_ => {
 			
 			onStart () {
 				BDFDB.PatchUtils.forceAllUpdates(this);
+				this.checkUpdate();
 			}
 			
 			onStop () {
 				BDFDB.PatchUtils.forceAllUpdates(this);
+			}
+
+			checkUpdate() {
+				const updateUrl = "https://raw.githubusercontent.com/KeremZayim/BetterDiscord/main/FriendsDate/FriendsDate.plugin.js";
+				BdApi.Net.fetch(updateUrl).then(response => {
+					if (!response.ok) return;
+					response.text().then(text => {
+						const remoteVersion = text.match(/@version\s+([0-9.]+)/)?.[1];
+						if (remoteVersion && BDFDB.NumberUtils.compareVersions(remoteVersion, this.version) > 0) {
+							const notice = BdApi.UI.showNotice(`${this.name} v${remoteVersion} mevcut!`, {
+								type: "info",
+								buttons: [{
+									label: "Şimdi Güncelle",
+									onClick: () => {
+										notice.close();
+										require("fs").writeFile(require("path").join(BdApi.Plugins.folder, "FriendsDate.plugin.js"), text, err => {
+											if (err) BdApi.UI.showToast("Güncelleme sırasında hata oluştu!", {type: "error"});
+											else BdApi.UI.showToast("Eklenti başarıyla güncellendi!", {type: "success"});
+										});
+									}
+								}]
+							});
+						}
+					});
+				}).catch(e => console.error(this.name, "Update check failed", e));
 			}
 
 			processUserThemeContainer (e) {
