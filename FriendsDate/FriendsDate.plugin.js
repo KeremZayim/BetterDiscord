@@ -4,7 +4,7 @@
  * @authorId undeadtoinfinity
  * @version 1.0.1
  * @description Kullanıcı panellerinde ne zamandan beri arkadaş olduğunuzu gösterir (0BDFDB Kütüphanesi gereklidir).
- * @source https://github.com/KeremZayim/BetterDiscord/FriendsDate
+ * @source https://github.com/KeremZayim/BetterDiscord/tree/main/FriendsDate
  * @updateUrl https://raw.githubusercontent.com/KeremZayim/BetterDiscord/refs/heads/main/FriendsDate/FriendsDate.plugin.js
  */
 
