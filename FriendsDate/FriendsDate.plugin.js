@@ -5,7 +5,7 @@
  * @version 1.0.2
  * @description Kullanıcı panellerinde ne zamandan beri arkadaş olduğunuzu ve toplam arkadaşlık süresini tek bir başlık altında gösterir.
  * @source https://github.com/KeremZayim/BetterDiscord/tree/main/FriendsDate
- * @updateUrl https://raw.githubusercontent.com/KeremZayim/BetterDiscord/refs/heads/main/FriendsDate/FriendsDate.plugin.js
+ * @updateUrl https://raw.githubusercontent.com/KeremZayim/BetterDiscord/main/FriendsDate/FriendsDate.plugin.js
  */
 
 module.exports = (_ => {
