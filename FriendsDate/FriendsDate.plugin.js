@@ -2,8 +2,8 @@
  * @name FriendsDate
  * @author UnDead To Infinity
  * @authorId undeadtoinfinity
- * @version 1.0.1
- * @description Kullanıcı panellerinde ne zamandan beri arkadaş olduğunuzu gösterir (0BDFDB Kütüphanesi gereklidir).
+ * @version 1.0.2
+ * @description Kullanıcı panellerinde ne zamandan beri arkadaş olduğunuzu ve toplam arkadaşlık süresini tek bir başlık altında gösterir.
  * @source https://github.com/KeremZayim/BetterDiscord/tree/main/FriendsDate
  * @updateUrl https://raw.githubusercontent.com/KeremZayim/BetterDiscord/refs/heads/main/FriendsDate/FriendsDate.plugin.js
  */
@@ -71,19 +71,57 @@ module.exports = (_ => {
 				const since = RelationshipStore.getSince(userId);
 				if (!since) return null;
 
-				const d = new Date(since);
-				const dateStr = `${d.getDate().toString().padStart(2, '0')}.${(d.getMonth() + 1).toString().padStart(2, '0')}.${d.getFullYear()} ${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}:${d.getSeconds().toString().padStart(2, '0')}`;
+				const startDate = new Date(since);
+				const endDate = new Date();
+				
+				const dateStr = `${startDate.getDate().toString().padStart(2, '0')}.${(startDate.getMonth() + 1).toString().padStart(2, '0')}.${startDate.getFullYear()} ${startDate.getHours().toString().padStart(2, '0')}:${startDate.getMinutes().toString().padStart(2, '0')}:${startDate.getSeconds().toString().padStart(2, '0')}`;
 
-				return BDFDB.ReactUtils.createElement("section", {
-					className: BDFDB.disCN.userprofilesection,
-					style: { marginBottom: "12px" },
-					children: [
-						BDFDB.ReactUtils.createElement(BDFDB.LibraryComponents.Heading, {
-							className: BDFDB.disCN.userprofilesectionheading,
-							variant: "text-xs/semibold",
-							style: { color: "var(--text-strong)" },
-							children: _this.labels.friendship_date
-						}),
+				let years = endDate.getFullYear() - startDate.getFullYear();
+				let months = endDate.getMonth() - startDate.getMonth();
+				let days = endDate.getDate() - startDate.getDate();
+				
+				if (days < 0) {
+					months--;
+					days += new Date(endDate.getFullYear(), endDate.getMonth(), 0).getDate();
+				}
+				if (months < 0) {
+					years--;
+					months += 12;
+				}
+
+				const durationParts = [];
+				if (years > 0) durationParts.push(`${years} ${_this.labels[years == 1 ? "year" : "years"]}`);
+				if (months > 0) durationParts.push(`${months} ${_this.labels[months == 1 ? "month" : "months"]}`);
+				if (days > 0) durationParts.push(`${days} ${_this.labels[days == 1 ? "day" : "days"]}`);
+				
+				const durationStr = durationParts.join(" ");
+
+				const sectionChildren = [
+					BDFDB.ReactUtils.createElement(BDFDB.LibraryComponents.Heading, {
+						className: BDFDB.disCN.userprofilesectionheading,
+						variant: "text-xs/semibold",
+						style: { color: "var(--text-strong)" },
+						children: _this.labels.friendship_info
+					}),
+					BDFDB.ReactUtils.createElement("div", {
+						className: BDFDB.disCN.membersince,
+						style: { display: "flex", alignItems: "center", marginBottom: "4px" },
+						children: [
+							BDFDB.ReactUtils.createElement(BDFDB.LibraryComponents.SvgIcon, {
+								style: { width: "16px", height: "16px", marginRight: "4px", color: "var(--text-muted)" },
+								nativeClass: false,
+								name: BDFDB.LibraryComponents.SvgIcon.Names.NUMPAD
+							}),
+							BDFDB.ReactUtils.createElement(BDFDB.LibraryComponents.TextElement, {
+								size: BDFDB.LibraryComponents.TextElement.Sizes.SIZE_14,
+								children: dateStr
+							})
+						]
+					})
+				];
+
+				if (durationStr) {
+					sectionChildren.push(
 						BDFDB.ReactUtils.createElement("div", {
 							className: BDFDB.disCN.membersince,
 							style: { display: "flex", alignItems: "center" },
@@ -91,15 +129,21 @@ module.exports = (_ => {
 								BDFDB.ReactUtils.createElement(BDFDB.LibraryComponents.SvgIcon, {
 									style: { width: "16px", height: "16px", marginRight: "4px", color: "var(--text-muted)" },
 									nativeClass: false,
-									name: BDFDB.LibraryComponents.SvgIcon.Names.NUMPAD
+									name: BDFDB.LibraryComponents.SvgIcon.Names.CLOCK
 								}),
 								BDFDB.ReactUtils.createElement(BDFDB.LibraryComponents.TextElement, {
 									size: BDFDB.LibraryComponents.TextElement.Sizes.SIZE_14,
-									children: dateStr
+									children: durationStr
 								})
 							]
 						})
-					]
+					);
+				}
+
+				return BDFDB.ReactUtils.createElement("section", {
+					className: BDFDB.disCN.userprofilesection,
+					style: { marginBottom: "12px" },
+					children: sectionChildren
 				});
 			}
 		};
@@ -164,122 +208,122 @@ module.exports = (_ => {
 
 			setLabelsByLanguage () {
 				switch (BDFDB.LanguageUtils.getLanguage().id) {
-					case "bg":		// Bulgarian
-						return {
-							friendship_date:					"Дата на приятелство"
-						};
-					case "cs":		// Czech
-						return {
-							friendship_date:					"Datum přátelství"
-						};
-					case "da":		// Danish
-						return {
-							friendship_date:					"Venskabsdato"
-						};
-					case "de":		// German
-						return {
-							friendship_date:					"Freundschaftsdatum"
-						};
-					case "el":		// Greek
-						return {
-							friendship_date:					"Ημερομηνία φιλίας"
-						};
-					case "es":		// Spanish
-						return {
-							friendship_date:					"Fecha de amistad"
-						};
-					case "fi":		// Finnish
-						return {
-							friendship_date:					"Ystävyyspäivä"
-						};
-					case "fr":		// French
-						return {
-							friendship_date:					"Date d'amitié"
-						};
-					case "hi":		// Hindi
-						return {
-							friendship_date:					"मित्रता की तिथि"
-						};
-					case "hr":		// Croatian
-						return {
-							friendship_date:					"Datum prijateljstva"
-						};
-					case "hu":		// Hungarian
-						return {
-							friendship_date:					"Barátság dátuma"
-						};
-					case "it":		// Italian
-						return {
-							friendship_date:					"Data di amicizia"
-						};
-					case "ja":		// Japanese
-						return {
-							friendship_date:					"友情の日付"
-						};
-					case "ko":		// Korean
-						return {
-							friendship_date:					"우정 날짜"
-						};
-					case "lt":		// Lithuanian
-						return {
-							friendship_date:					"Draugystės data"
-						};
-					case "nl":		// Dutch
-						return {
-							friendship_date:					"Vriendschapsdatum"
-						};
-					case "no":		// Norwegian
-						return {
-							friendship_date:					"Vennskapsdato"
-						};
-					case "pl":		// Polish
-						return {
-							friendship_date:					"Data przyjaźni"
-						};
-					case "pt-BR":	// Portuguese (Brazil)
-						return {
-							friendship_date:					"Data de amizade"
-						};
-					case "ro":		// Romanian
-						return {
-							friendship_date:					"Data prieteniei"
-						};
-					case "ru":		// Russian
-						return {
-							friendship_date:					"Дата дружбы"
-						};
-					case "sv":		// Swedish
-						return {
-							friendship_date:					"Vänskapsdatum"
-						};
-					case "th":		// Thai
-						return {
-							friendship_date:					"วันที่เป็นเพื่อนกัน"
-						};
-					case "tr":		// Turkish
-						return {
-							friendship_date:					"Arkadaşlık Tarihi"
-						};
-					case "uk":		// Ukrainian
-						return {
-							friendship_date:					"Дата дружби"
-						};
-					case "vi":		// Vietnamese
-						return {
-							friendship_date:					"Ngày kết bạn"
-						};
-					case "zh-CN":	// Chinese (China)
-						return {
-							friendship_date:					"友谊日期"
-						};
-					case "zh-TW":	// Chinese (Taiwan)
-						return {
-							friendship_date:					"友誼日期"
-						};
-					default:		// English
-						return {
-							friendship_date:					"Friendship Date"
-						};
+					case "tr": return {
+						friendship_info: "Arkadaşlık Tarihi & Süresi",
+						year: "yıl", years: "yıl", month: "ay", months: "ay", day: "gün", days: "gün" 
+					};
+					case "bg": return {
+						friendship_info: "Дата и продължителност на приятелството",
+						year: "година", years: "години", month: "месец", months: "месеца", day: "ден", days: "дни" 
+					};
+					case "cs": return {
+						friendship_info: "Datum ve trvání přátelství",
+						year: "rok", years: "let", month: "měsíc", months: "měsíců", day: "den", days: "dní" 
+					};
+					case "da": return {
+						friendship_info: "Venskabsdato og varighed",
+						year: "år", years: "år", month: "måned", months: "måneder", day: "dag", days: "dage" 
+					};
+					case "de": return {
+						friendship_info: "Freundschaftsdatum & -dauer",
+						year: "Jahr", years: "Jahre", month: "Monat", months: "Monate", day: "Tag", days: "Tage" 
+					};
+					case "el": return {
+						friendship_info: "Ημερομηνία & Διάρκεια Φιλίας",
+						year: "έτος", years: "έτη", month: "μήνας", months: "μήνες", day: "ημέρα", days: "ημέρες" 
+					};
+					case "es": return {
+						friendship_info: "Fecha y duración de la amistad",
+						year: "año", years: "años", month: "mes", months: "meses", day: "día", days: "días" 
+					};
+					case "fi": return {
+						friendship_info: "Ystävyyden päivämäärä ja kesto",
+						year: "vuosi", years: "vuotta", month: "kuukausi", months: "kuukautta", day: "päivä", days: "päivää" 
+					};
+					case "fr": return {
+						friendship_info: "Date & durée de l'amitié",
+						year: "an", years: "ans", month: "mois", months: "mois", day: "jour", days: "jours" 
+					};
+					case "hi": return {
+						friendship_info: "मित्रता की तिथि और अवधि",
+						year: "वर्ष", years: "वर्ष", month: "महीना", months: "महीने", day: "दिन", days: "दिन" 
+					};
+					case "hr": return {
+						friendship_info: "Datum i trajanje prijateljstva",
+						year: "godina", years: "godina", month: "mjesec", months: "mjeseci", day: "dan", days: "dana" 
+					};
+					case "hu": return {
+						friendship_info: "Barátság dátuma és időtartama",
+						year: "év", years: "év", month: "hónap", months: "hónap", day: "nap", days: "nap" 
+					};
+					case "it": return {
+						friendship_info: "Data e durata dell'amicizia",
+						year: "anno", years: "anni", month: "mese", months: "mesi", day: "giorno", days: "giorni" 
+					};
+					case "ja": return {
+						friendship_info: "友情の日付と期間",
+						year: "年", years: "年", month: "ヶ月", months: "ヶ月", day: "日", days: "日" 
+					};
+					case "ko": return {
+						friendship_info: "우정 날짜 및 기간",
+						year: "년", years: "년", month: "개월", months: "개월", day: "일", days: "일" 
+					};
+					case "lt": return {
+						friendship_info: "Draugystės data ir trukmė",
+						year: "metai", years: "metai", month: "mėnuo", months: "mėnesiai", day: "diena", days: "dienos" 
+					};
+					case "nl": return {
+						friendship_info: "Vriendschapsdatum & duur",
+						year: "jaar", years: "jaar", month: "maand", months: "maanden", day: "dag", days: "dagen" 
+					};
+					case "no": return {
+						friendship_info: "Vennskapsdato og varighet",
+						year: "år", years: "år", month: "måned", months: "måneder", day: "dag", days: "dager" 
+					};
+					case "pl": return {
+						friendship_info: "Data i czas trwania przyjaźni",
+						year: "rok", years: "lat", month: "miesiąc", months: "miesięcy", day: "dzień", days: "dni" 
+					};
+					case "pt-BR": return {
+						friendship_info: "Data e duração da amizade",
+						year: "ano", years: "anos", month: "mês", months: "meses", day: "dia", days: "dias" 
+					};
+					case "ro": return {
+						friendship_info: "Data și durata prieteniei",
+						year: "an", years: "ani", month: "lună", months: "luni", day: "zi", days: "zile" 
+					};
+					case "ru": return {
+						friendship_info: "Дата и продолжительность дружбы",
+						year: "год", years: "лет", month: "месяц", months: "месяцев", day: "день", days: "дней" 
+					};
+					case "sv": return {
+						friendship_info: "Vänskapsdatum och varaktighet",
+						year: "år", years: "år", month: "månad", months: "månader", day: "dag", days: "dagar" 
+					};
+					case "th": return {
+						friendship_info: "วันที่และระยะเวลาความเป็นเพื่อน",
+						year: "ปี", years: "ปี", month: "เดือน", months: "เดือน", day: "วัน", days: "วัน" 
+					};
+					case "uk": return {
+						friendship_info: "Дата та тривалість дружби",
+						year: "рік", years: "років", month: "місяць", months: "місяців", day: "день", days: "днів" 
+					};
+					case "vi": return {
+						friendship_info: "Ngày vè thời gian kết bạn",
+						year: "năm", years: "năm", month: "tháng", months: "tháng", day: "ngày", days: "ngày" 
+					};
+					case "zh-CN": return {
+						friendship_info: "友谊日期和时长",
+						year: "年", years: "年", month: "个月", months: "个月", day: "天", days: "天" 
+					};
+					case "zh-TW": return {
+						friendship_info: "友誼日期和時長",
+						year: "年", years: "年", month: "個月", months: "個月", day: "天", days: "天" 
+					};
+					default: return {
+						friendship_info: "Friendship Date & Duration",
+						year: "year", years: "years", month: "month", months: "months", day: "day", days: "days" 
+					};
 				}
 			}
 		};
